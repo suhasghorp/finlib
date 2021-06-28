@@ -26,5 +26,5 @@ jobs:
       run: ls -a
     - name: What is the target folder?
       run: |
-        cd target
+        cd finutils/target
         ls -a
