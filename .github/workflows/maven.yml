@@ -21,7 +21,7 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Build with Maven
-      run: mvn -B test --file pom.xml
+      run: mvn -B package --file pom.xml
     - name: List current dir
       run: ls -a
     - name: What is the target folder?
