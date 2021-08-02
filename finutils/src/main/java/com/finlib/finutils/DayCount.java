@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
-public class DayCount {
+public final class DayCount {
     private DayCountType dayCountType;
     private static final int[] monthDaysNotLeapYear = new int[] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     private static final int[] monthDaysLeapYear = new int[] {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -120,7 +120,7 @@ public class DayCount {
             } else {
                 feb29 = LocalDate.of(1900, 1, 1);
             }
-            var den = 1.0;
+            var den = 365.0;
             if (freqType == FrequencyType.ANNUAL) {
                 if (dt1.isBefore(feb29) && (feb29.isBefore(dt3.orElse(LocalDate.MAX)) || feb29.isEqual(dt3.orElse(LocalDate.MAX))))
                     den = 366;
@@ -129,11 +129,11 @@ public class DayCount {
                     den = 366;
             }
             accFactor = num / den;
-        } else if (this.dayCountType == DayCountType.SIMPLE) {
+        } else if (this.dayCountType == DayCountType.SIMPLE || this.dayCountType == null) {
             long num = ChronoUnit.DAYS.between(dt1, dt2);
             accFactor = num / 365.0;
         }
 
-        return accFactor;
+        return accFactor < 1e-10 ? 0.0 : accFactor;
     }
 }

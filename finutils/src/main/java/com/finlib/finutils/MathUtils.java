@@ -2,7 +2,7 @@ package com.finlib.finutils;
 
 import java.util.List;
 
-public class MathUtils {
+public final class MathUtils {
     private MathUtils(){}
     public static boolean checkMonotonicity(List<Double> x){
         for (var i = 1; i < x.size(); i++){

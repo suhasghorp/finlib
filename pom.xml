@@ -21,6 +21,7 @@
         <module>market</module>
         <module>models</module>
         <module>products</module>
+        <module>shared</module>
     </modules>
 
 

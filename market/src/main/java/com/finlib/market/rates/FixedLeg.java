@@ -1,7 +1,7 @@
-package com.finlib.products.rates;
+package com.finlib.market.rates;
 
 import com.finlib.finutils.*;
-import com.finlib.market.curves.DiscountCurve;
+import com.finlib.shared.DiscountCurve;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class FixedLeg {
+public final class FixedLeg {
     private final LocalDate effectiveDate;
     private final LocalDate endDate;
     private final SwapType legType;
@@ -154,7 +154,9 @@ public class FixedLeg {
     }
 
     public double value(LocalDate valuationDate, DiscountCurve discountCurve){
-
+        paymentDFs.clear();
+        paymentPVs.clear();
+        cumulativePVs.clear();
         double dfValDt = discountCurve.df(valuationDate);
         int numPayments = paymentDates.size();
         double legPV = 0.0;
@@ -186,4 +188,9 @@ public class FixedLeg {
 
         return legPV;
     }
+
+    public double getCoupon() { return coupon;}
+    public double getNotional() { return notional;}
+    public List<LocalDate> getPaymentDates() { return paymentDates;}
+    public LocalDate getLastPaymentDate() { return paymentDates.get(paymentDates.size() - 1);}
 }

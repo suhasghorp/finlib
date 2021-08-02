@@ -1,4 +1,4 @@
-package com.finlib.market.curves;
+package com.finlib.shared;
 
 import com.finlib.finutils.*;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
@@ -13,13 +13,13 @@ import java.util.stream.IntStream;
 
 public class DiscountCurve {
 
-    DoubleArrayList times = new DoubleArrayList();
-    DoubleArrayList dfs = new DoubleArrayList();
+    public DoubleArrayList times = new DoubleArrayList();
+    public DoubleArrayList dfs = new DoubleArrayList();
     private InterpolationType interpType;
     private final FrequencyType freqType = FrequencyType.CONTINUOUS;
-    private LocalDate valuationDate;
+    protected LocalDate valuationDate;
     private DayCountType dayCountType;
-    private Interpolator interpolator;
+    protected Interpolator interpolator;
 
     public DiscountCurve(){}
 
@@ -150,7 +150,7 @@ public class DiscountCurve {
         return (dfStart - discFact) / pv01;
     }
 
-    private double fwd(LocalDate dt){
+    public double fwd(LocalDate dt){
         double df1 = df(dt);
         double df2 = df(dt.plusDays(1));
         double yearFrac = 1.0/365.0;
@@ -185,7 +185,13 @@ public class DiscountCurve {
         return fwdRate(startDate,maturityDate,dayCountType);
     }
 
+    public Interpolator getInterpolator(){
+        return interpolator;
+    }
 
+    public LocalDate getValuationDate() {
+        return valuationDate;
+    }
 
     private boolean testMonotonicity(){
         return IntStream.range(1, times.size()).reduce(0, (acc, e) -> acc + (times.getDouble(e - 1) <= times.getDouble(e) ? 0 : 1)) == 0;

@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.time.temporal.TemporalAdjusters;
 
-public class Schedule {
+public final class Schedule {
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final FrequencyType frequencyType;

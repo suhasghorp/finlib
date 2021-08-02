@@ -1,4 +1,4 @@
-package com.finlib.products.rates;
+package com.finlib.market.rates;
 
 public enum SwapType {
     PAY,

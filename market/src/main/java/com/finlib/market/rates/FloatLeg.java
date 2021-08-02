@@ -1,17 +1,19 @@
-package com.finlib.products.rates;
+package com.finlib.market.rates;
 
 import com.finlib.finutils.*;
-import com.finlib.market.curves.DiscountCurve;
+import com.finlib.shared.DiscountCurve;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class FloatLeg {
+public final class FloatLeg {
     private final LocalDate effectiveDate;
     private final LocalDate endDate;
     private final SwapType legType;
@@ -153,8 +155,13 @@ public class FloatLeg {
         }
     }
 
-    public double value(LocalDate valuationDate, DiscountCurve discountCurve, DiscountCurve indexCurve, Optional<Double> firstFixing){
-
+    public double value(LocalDate valuationDate, DiscountCurve indexCurve, DiscountCurve discountCurve, Optional<Double> firstFixing){
+        rates.clear();
+        payments.clear();
+        paymentDFs.clear();
+        paymentPVs.clear();
+        cumulativePVs.clear();
+        MathContext mc = MathContext.DECIMAL128;
         double dfValDt = discountCurve.df(valuationDate);
         int numPayments = paymentDates.size();
         double legPV = 0.0, fwdRate = 0.0;
@@ -172,12 +179,19 @@ public class FloatLeg {
                 } else {
                     double dfStart = indexCurve.df(startAccrueDt);
                     double dfEnd = indexCurve.df(endAccrueDt);
-                    fwdRate = (dfStart / dfEnd - 1.0) / alpha;
+                    //fwdRate = (dfStart / dfEnd - 1.0) / alpha;
+                    try {
+                        fwdRate = BigDecimal.valueOf(dfStart).divide(BigDecimal.valueOf(dfEnd), mc).subtract(BigDecimal.valueOf(1.0)).
+                                divide(BigDecimal.valueOf(alpha), mc).doubleValue();
+                    } catch (NumberFormatException nfe){
+                        System.out.println("here");
+                    }
                 }
-                double pmntAmount = (fwdRate + spread) * alpha * notional;
-                double dfPmnt = discountCurve.df(paymentDt) / dfValDt;
-                double pmntPV = pmntAmount * dfPmnt;
-                legPV += pmntPV;
+                double pmntAmount = BigDecimal.valueOf(fwdRate).add(BigDecimal.valueOf(spread)).multiply(BigDecimal.valueOf(alpha)).
+                        multiply(BigDecimal.valueOf(notional)).doubleValue();
+                double dfPmnt = BigDecimal.valueOf(discountCurve.df(paymentDt)).divide(BigDecimal.valueOf(dfValDt),mc).doubleValue();
+                double pmntPV = BigDecimal.valueOf(pmntAmount).multiply(BigDecimal.valueOf(dfPmnt)).doubleValue();
+                legPV = BigDecimal.valueOf(legPV).add(BigDecimal.valueOf(pmntPV)).doubleValue();
 
                 rates.add(fwdRate);
                 payments.add(pmntAmount);
@@ -192,12 +206,12 @@ public class FloatLeg {
                 cumulativePVs.add(legPV);
             }
 
-            if (paymentDates.get(paymentDates.size() - 1).isAfter(valuationDate)){
+            /*if (paymentDates.get(paymentDates.size() - 1).isAfter(valuationDate)){
                 double paymentPV = principal * paymentDFs.getDouble(paymentDFs.size()-1) * notional;
                 paymentPVs.set(paymentPVs.size()-1, paymentPVs.getDouble(paymentPVs.size()-1) + paymentPV);
                 legPV += paymentPV;
                 cumulativePVs.set(cumulativePVs.size()-1, legPV);
-            }
+            }*/
         }
         if (paymentDates.get(paymentDates.size() - 1).isAfter(valuationDate)){
             double paymentPV = principal * paymentDFs.getDouble(paymentDFs.size()-1) * notional;

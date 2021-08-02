@@ -1,6 +1,6 @@
 package com.finlib.finutils;
 
-public class FinlibException extends RuntimeException {
+public final class FinlibException extends RuntimeException {
     public FinlibException(){
         super();
     }

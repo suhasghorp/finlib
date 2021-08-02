@@ -6,7 +6,7 @@ public enum FrequencyType {
     QUARTERLY (4),
     MONTHLY (12),
     SIMPLE (0),
-    CONTINUOUS(99);
+    CONTINUOUS(-1);
 
     private final int num;
     FrequencyType(int i){
